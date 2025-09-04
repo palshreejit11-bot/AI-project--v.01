@@ -51,7 +51,7 @@ const App: React.FC = () => {
               value={businessDescription}
               onChange={(e) => setBusinessDescription(e.target.value)}
               placeholder="e.g., A specialty coffee shop in Kolkata"
-              className="w-full h-28 p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition duration-200 ease-in-out resize-none font-lato"
+              className="w-full h-28 p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition duration-200 ease-in-out resize-none font-lato disabled:bg-gray-100 disabled:cursor-not-allowed"
               disabled={isLoading}
               aria-label="Business description input"
             />

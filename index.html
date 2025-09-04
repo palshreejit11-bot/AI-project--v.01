@@ -44,6 +44,17 @@
 </head>
   <body class="bg-violet-50">
     <div id="root"></div>
+
+    <!-- Polyfill for process.env.API_KEY -->
+    <script>
+      // The Gemini client library expects process.env.API_KEY.
+      // In a browser-only environment, we need to define this object.
+      window.process = {
+        env: {
+          API_KEY: "AIzaSyCJMc7lSMzWjdeDZ_kGfjINWfxVxVf7eW8"
+        }
+      };
+    </script>
     
     <!-- Use Babel to transpile and run the React application from index.tsx -->
     <script type="text/babel" data-presets="react,typescript" src="index.tsx"></script>

@@ -7,11 +7,13 @@ interface SpinnerProps {
 
 const Spinner: React.FC<SpinnerProps> = ({ size = 'small' }) => {
   const sizeClasses = size === 'large' ? 'h-10 w-10' : 'h-5 w-5';
+  // Use a different color for the button spinner vs the main loading spinner
+  const colorClass = size === 'small' ? 'text-white' : 'text-teal-500';
   const marginClass = size === 'small' ? 'mr-2' : '';
   
   return (
     <svg
-      className={`animate-spin ${sizeClasses} text-white ${marginClass}`}
+      className={`animate-spin ${sizeClasses} ${colorClass} ${marginClass}`}
       xmlns="http://www.w3.org/2000/svg"
       fill="none"
       viewBox="0 0 24 24"

@@ -49,7 +49,224 @@
 </head>
   <body class="bg-violet-50">
     <div id="root"></div>
-    <!-- Use Babel to transpile and run the main TSX file. -->
-    <script type="text/babel" data-type="module" data-presets="react,typescript" src="/index.tsx"></script>
+    
+    <!-- Use Babel to transpile and run the entire React application -->
+    <script type="text/babel" data-presets="react,typescript">
+      const { useState, useCallback, useMemo } = React;
+
+      // --- Component: Spinner ---
+      const Spinner = ({ size = 'small' }) => {
+        const sizeClasses = size === 'large' ? 'h-10 w-10' : 'h-5 w-5';
+        const marginClass = size === 'small' ? 'mr-2' : '';
+        
+        return (
+          <svg
+            className={`animate-spin ${sizeClasses} text-white ${marginClass}`}
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+          >
+            <circle
+              className="opacity-25"
+              cx="12"
+              cy="12"
+              r="10"
+              stroke="currentColor"
+              strokeWidth="4"
+            ></circle>
+            <path
+              className="opacity-75"
+              fill="currentColor"
+              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+            ></path>
+          </svg>
+        );
+      };
+
+      // --- Component: ResultDisplay ---
+      const ResultDisplay = ({ markdownContent }) => {
+        const htmlContent = useMemo(() => {
+          if (window.marked) {
+            return window.marked.parse(markdownContent);
+          }
+          return `<p>${markdownContent.replace(/\n/g, '<br>')}</p>`;
+        }, [markdownContent]);
+
+        return (
+          <div
+            className="prose prose-lg max-w-none prose-h2:font-lora prose-h2:text-teal-700 prose-h3:font-lora prose-strong:text-gray-800 prose-a:text-teal-600 hover:prose-a:text-teal-700"
+            dangerouslySetInnerHTML={{ __html: htmlContent }}
+          />
+        );
+      };
+
+      // --- Service: Gemini AI Logic ---
+      // --- IMPORTANT SECURITY WARNING ---
+      // The API key is exposed on the client-side here.
+      // This is NOT recommended for production applications.
+      // Anyone can view your key by inspecting the page source.
+      // For a real application, you should hide this key behind a backend server.
+      // For this personal project/demo, you can paste your key here.
+      const API_KEY = 'YOUR_GEMINI_API_KEY';
+
+      const getGenAI = () => {
+          if (!window.GoogleGenAI) {
+              throw new Error("GoogleGenAI SDK not loaded. Ensure the script is included in index.html.");
+          }
+          if (!API_KEY || API_KEY === 'YOUR_GEMINI_API_KEY') {
+              throw new Error("API key not configured. Please add your Gemini API key inside the script tag in index.html");
+          }
+          return new window.GoogleGenAI({ apiKey: API_KEY });
+      }
+
+      const masterPrompt = `
+      You are "Saathi," an expert social media strategist specializing in creating engaging, localized content for small businesses. Your tone is encouraging, creative, and professional.
+
+      Your task is to generate a comprehensive 7-day social media content plan for the following business:
+      [BUSINESS_TYPE]
+
+      The plan should be formatted in Markdown and must include the following for each of the 7 days:
+
+      **Day X: [Theme of the Day]**
+
+      *   **Platform:** Suggest the best platform for the post (e.g., Instagram, Facebook).
+      *   **Post Type:** Specify the format (e.g., Image Post, Video Reel, Carousel, Story).
+      *   **Content Idea:** Provide a detailed description of the content. Be creative and specific to the business type. For example, instead of "Post a picture of coffee," suggest "A close-up, top-down shot of a freshly made latte with beautiful art, with steam gently rising. The background should be our cozy cafe corner."
+      *   **Caption:** Write a compelling and engaging caption. Include a call-to-action (CTA).
+      *   **Hashtags:** Provide a mix of 5-7 relevant niche, local, and broad hashtags.
+
+      **General Guidelines:**
+      - The plan should have a logical flow through the week.
+      - Tailor the content ideas to the specific business and its likely location.
+      - Ensure the output is ONLY the Markdown plan itself, starting with "Day 1". Do not include any introductory or concluding text outside of the plan.
+      `;
+
+      const generateSocialMediaPlan = async (businessDescription) => {
+        try {
+          const ai = getGenAI();
+          const fullPrompt = masterPrompt.replace('[BUSINESS_TYPE]', businessDescription);
+          
+          const response = await ai.models.generateContent({
+            model: 'gemini-2.5-flash',
+            contents: fullPrompt,
+          });
+
+          return response.text;
+        } catch (error) {
+          console.error('Error generating content from Gemini API:', error);
+          throw error;
+        }
+      };
+
+      // --- Component: Main App ---
+      const App = () => {
+        const [businessDescription, setBusinessDescription] = useState('');
+        const [socialMediaPlan, setSocialMediaPlan] = useState('');
+        const [isLoading, setIsLoading] = useState(false);
+        const [error, setError] = useState(null);
+
+        const handleGeneratePlan = useCallback(async () => {
+          if (!businessDescription.trim()) {
+            setError('Please enter a business description.');
+            return;
+          }
+
+          setIsLoading(true);
+          setError(null);
+          setSocialMediaPlan('');
+
+          try {
+            const plan = await generateSocialMediaPlan(businessDescription);
+            setSocialMediaPlan(plan);
+          } catch (err) {
+            const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred.';
+            if (errorMessage.includes("API key not configured")) {
+              setError('Configuration needed: Please add your Google Gemini API key to the script tag in your index.html file.');
+            } else {
+              setError('Failed to generate social media plan. This could be due to an invalid API key, network issues, or a problem with the service. Please try again.');
+            }
+            console.error(err);
+          } finally {
+            setIsLoading(false);
+          }
+        }, [businessDescription]);
+
+        return (
+          <div className="min-h-screen font-lato text-gray-800 flex flex-col items-center p-4 sm:p-6 md:p-8">
+            <div className="w-full max-w-4xl mx-auto">
+              <header className="text-center mb-8">
+                <h1 className="font-lora text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900">
+                  Dumble's Door AI Presents:
+                </h1>
+                <h2 className="font-lora text-2xl sm:text-3xl md:text-4xl font-bold text-teal-600 mt-2">
+                  The One-Click Social Media Kit
+                </h2>
+                <p className="mt-4 text-base sm:text-lg text-gray-600 max-w-2xl mx-auto">
+                  Enter your business type and location below to get a free, custom 7-day social media plan in seconds.
+                </p>
+              </header>
+
+              <main className="bg-white rounded-xl shadow-lg p-6 sm:p-8 border border-gray-200">
+                <div className="flex flex-col space-y-4">
+                  <textarea
+                    value={businessDescription}
+                    onChange={(e) => setBusinessDescription(e.target.value)}
+                    placeholder="e.g., A specialty coffee shop in Kolkata"
+                    className="w-full h-28 p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition duration-200 ease-in-out resize-none font-lato"
+                    disabled={isLoading}
+                  />
+                  <button
+                    onClick={handleGeneratePlan}
+                    disabled={isLoading}
+                    className="w-full sm:w-auto self-center sm:self-end flex items-center justify-center px-8 py-3 bg-teal-500 text-white font-bold rounded-lg hover:bg-teal-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500 transition duration-200 ease-in-out disabled:bg-gray-400 disabled:cursor-not-allowed"
+                  >
+                    {isLoading ? (
+                      <React.Fragment>
+                        <Spinner />
+                        Generating...
+                      </React.Fragment>
+                    ) : (
+                      'Generate My Plan'
+                    )}
+                  </button>
+                </div>
+              </main>
+
+              <section id="results" className="mt-8">
+                {error && <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg" role="alert">{error}</div>}
+                
+                {isLoading && (
+                  <div className="flex flex-col items-center justify-center bg-white p-8 rounded-xl shadow-lg border border-gray-200 min-h-[200px]">
+                      <Spinner size="large" />
+                      <p className="mt-4 text-gray-600 font-semibold">Generating your custom plan...</p>
+                  </div>
+                )}
+
+                {socialMediaPlan && !isLoading && (
+                  <div className="bg-white p-6 sm:p-8 rounded-xl shadow-lg border border-gray-200">
+                    <ResultDisplay markdownContent={socialMediaPlan} />
+                  </div>
+                )}
+              </section>
+            </div>
+             <footer className="text-center mt-12 py-4">
+                  <p className="text-sm text-gray-500">Powered by Dumble's Door AI & Google Gemini</p>
+              </footer>
+          </div>
+        );
+      };
+
+      // --- Render the App ---
+      const rootElement = document.getElementById('root');
+      if (!rootElement) {
+        throw new Error("Could not find root element to mount to");
+      }
+      const root = ReactDOM.createRoot(rootElement);
+      root.render(
+        <React.StrictMode>
+          <App />
+        </React.StrictMode>
+      );
+    </script>
   </body>
 </html>

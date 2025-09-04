@@ -1,27 +1,8 @@
 import { GoogleGenAI } from '@google/genai';
 
-// --- IMPORTANT SECURITY WARNING ---
-// The API key is exposed on the client-side here.
-// This is NOT recommended for production applications.
-// Anyone can view your key by inspecting the page source.
-// For a real application, you should hide this key behind a backend server or a serverless function.
-// For this personal project/demo, you can paste your key here.
-const API_KEY = 'YOUR_GEMINI_API_KEY';
-
-// This function assumes window.GoogleGenAI is loaded from the CDN script in index.html
-const getGenAI = (): GoogleGenAI => {
-    const ai = (window as any).GoogleGenAI;
-    if (!ai) {
-        throw new Error("GoogleGenAI SDK not loaded. Ensure the script is included in index.html.");
-    }
-
-    if (!API_KEY || API_KEY === 'YOUR_GEMINI_API_KEY') {
-        // This error will be caught by the App component and displayed to the user.
-        throw new Error("API key not configured. Please add your Gemini API key to services/geminiService.ts");
-    }
-
-    return new ai({ apiKey: API_KEY });
-}
+// Initialize the Google GenAI client.
+// It is assumed that process.env.API_KEY is available in the execution environment.
+const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
 const masterPrompt = `
 You are "Saathi," an expert social media strategist specializing in creating engaging, localized content for small businesses. Your tone is encouraging, creative, and professional.
@@ -48,7 +29,6 @@ The plan should be formatted in Markdown and must include the following for each
 
 export const generateSocialMediaPlan = async (businessDescription: string): Promise<string> => {
   try {
-    const ai = getGenAI();
     const fullPrompt = masterPrompt.replace('[BUSINESS_TYPE]', businessDescription);
     
     const response = await ai.models.generateContent({

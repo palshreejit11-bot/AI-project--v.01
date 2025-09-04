@@ -23,13 +23,7 @@ const App: React.FC = () => {
       const plan = await generateSocialMediaPlan(businessDescription);
       setSocialMediaPlan(plan);
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred.';
-      // Provide a more specific error message if the API key is missing.
-      if (errorMessage.includes("API key not configured")) {
-        setError('Configuration needed: Please add your Google Gemini API key to the `services/geminiService.ts` file.');
-      } else {
-        setError('Failed to generate social media plan. This could be due to an invalid API key, network issues, or a problem with the service. Please try again.');
-      }
+      setError('Failed to generate social media plan. This could be due to an invalid API key, network issues, or a problem with the service. Please check your configuration and try again.');
       console.error(err);
     } finally {
       setIsLoading(false);
@@ -59,6 +53,7 @@ const App: React.FC = () => {
               placeholder="e.g., A specialty coffee shop in Kolkata"
               className="w-full h-28 p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition duration-200 ease-in-out resize-none font-lato"
               disabled={isLoading}
+              aria-label="Business description input"
             />
             <button
               onClick={handleGeneratePlan}
@@ -77,7 +72,7 @@ const App: React.FC = () => {
           </div>
         </main>
 
-        <section id="results" className="mt-8">
+        <section id="results" className="mt-8" aria-live="polite">
           {error && <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg" role="alert">{error}</div>}
           
           {isLoading && (

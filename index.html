@@ -32,8 +32,8 @@
     "@google/genai": "https://aistudiocdn.com/@google/genai@^1.17.0",
     "react": "https://esm.sh/react@18.2.0",
     "react-dom/client": "https://esm.sh/react-dom@18.2.0/client",
-    "react/": "https://aistudiocdn.com/react@^19.1.1/",
-    "react-dom/": "https://aistudiocdn.com/react-dom@^19.1.1/"
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.1.1/",
+    "react/": "https://aistudiocdn.com/react@^19.1.1/"
   }
 }
 </script>
@@ -41,16 +41,8 @@
   <body class="bg-violet-50">
     <div id="root"></div>
 
-    <!-- Polyfill for process.env.API_KEY -->
-    <script>
-      // The Gemini client library expects process.env.API_KEY.
-      // In a browser-only environment, we need to define this object.
-      window.process = {
-        env: {
-          API_KEY: "AIzaSyCJMc7lSMzWjdeDZ_kGfjINWfxVxVf7eW8"
-        }
-      };
-    </script>
+    <!-- The application's source code is transpiled and executed by Babel. -->
+    <!-- It is assumed that the execution environment (like a hosting platform's build process or a framework) will make environment variables like API_KEY available on the 'process.env' object. -->
     
     <!-- Use Babel to transpile and run the React application from index.tsx -->
     <script type="text/babel" data-presets="react,typescript" src="index.tsx" data-type="module"></script>

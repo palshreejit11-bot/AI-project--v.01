@@ -10,10 +10,6 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&family=Lora:wght@400;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-
-    <!-- Load React and ReactDOM for Babel to use -->
-    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     
     <!-- Load Babel Standalone for in-browser JSX/TSX transpilation -->
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -34,9 +30,10 @@
 {
   "imports": {
     "@google/genai": "https://aistudiocdn.com/@google/genai@^1.17.0",
-    "react": "https://aistudiocdn.com/react@^19.1.1",
-    "react-dom/": "https://aistudiocdn.com/react-dom@^19.1.1/",
-    "react/": "https://aistudiocdn.com/react@^19.1.1/"
+    "react": "https://esm.sh/react@18.2.0",
+    "react-dom/client": "https://esm.sh/react-dom@18.2.0/client",
+    "react/": "https://aistudiocdn.com/react@^19.1.1/",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.1.1/"
   }
 }
 </script>

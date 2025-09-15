@@ -2,12 +2,12 @@ import { GoogleGenAI } from '@google/genai';
 
 // --- A more robust way to initialize the client ---
 
-// Retrieve the API key from the environment variables injected by Vite.
+// Retrieve the API key from the environment variables.
 const apiKey = process.env.API_KEY;
 
 // Check if the API key is available. If not, we'll throw a clear error.
 if (!apiKey) {
-  throw new Error("VITE_GEMINI_API_KEY is not set. Please add it to your .env file or environment variables.");
+  throw new Error("API_KEY is not set. Please add it to your environment variables.");
 }
 
 // Initialize the Google GenAI client only if the key exists.
@@ -39,10 +39,8 @@ export const generateSocialMediaPlan = async (businessDescription: string): Prom
   try {
     const fullPrompt = masterPrompt.replace('[BUSINESS_TYPE]', businessDescription);
     
-    // Note: The model name might vary. Ensure this is the one you intend to use.
-    // Models like 'gemini-pro' are also common.
     const response = await ai.models.generateContent({
-      model: 'gemini-1.5-flash', // Updated to a common and powerful model
+      model: 'gemini-2.5-flash', // Correct, recommended model
       contents: fullPrompt,
     });
 

@@ -1,7 +1,7 @@
 import React, { useState, useCallback } from 'react';
-import { generateSocialMediaPlan } from './services/geminiService.ts';
-import Spinner from './components/Spinner.tsx';
-import ResultDisplay from './components/ResultDisplay.tsx';
+import { generateSocialMediaPlan } from './services/geminiService';
+import Spinner from './components/Spinner';
+import ResultDisplay from './components/ResultDisplay';
 
 const App: React.FC = () => {
   const [businessDescription, setBusinessDescription] = useState<string>('');
